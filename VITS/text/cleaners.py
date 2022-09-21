@@ -38,16 +38,13 @@ def chinese_cleaners(text):
 def zh_ja_mixture_cleaners(text):
     from .mandarin import chinese_to_romaji
     from .japanese import japanese_to_romaji_with_accent
-    chinese_texts = re.findall(r'\[ZH\].*?\[ZH\]', text)
-    japanese_texts = re.findall(r'\[JA\].*?\[JA\]', text)
+    chinese_texts = re.findall(r'^\[ZH\](.*?)\[ZH\]$', text)
+    japanese_texts = re.findall(r'^\[JA\](.*?)\[JA\]$', text)
     for chinese_text in chinese_texts:
-        cleaned_text = chinese_to_romaji(chinese_text[4:-4])
-        text = text.replace(chinese_text, cleaned_text+' ', 1)
+        text = chinese_to_romaji(chinese_text)
     for japanese_text in japanese_texts:
-        cleaned_text = japanese_to_romaji_with_accent(
-            japanese_text[4:-4]).replace('ts', 'ʦ').replace('u', 'ɯ').replace('...', '…')
-        text = text.replace(japanese_text, cleaned_text+' ', 1)
-    text = text[:-1]
+        text = japanese_to_romaji_with_accent(
+            japanese_text).replace('ts', 'ʦ').replace('u', 'ɯ').replace('...', '…')
     if re.match('[A-Za-zɯɹəɥ→↓↑]', text[-1]):
         text += '.'
     return text

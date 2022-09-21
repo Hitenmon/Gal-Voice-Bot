@@ -2,11 +2,11 @@
 # coding: utf-8
 from scipy.io.wavfile import write
 from torch import LongTensor, no_grad
+import re
 
 from . import commons, utils
 from .models import SynthesizerTrn
 from .text import text_to_sequence
-from .Translate import Translate
 
 
 def get_text(text, hps, cleaned=False):
@@ -35,6 +35,7 @@ config =[f.format(config_root) for f in [
             "{0}/CH4/config.json"]
         ]
 
+DUOLINGO_MODELS = [3]
 
 hps_ms = [utils.get_hparams_from_file(c) for c in config]
 net_g_ms = [SynthesizerTrn(
@@ -45,16 +46,28 @@ net_g_ms = [SynthesizerTrn(
     **h.model) for h in hps_ms]
 for m, n in zip(model, net_g_ms):
     utils.load_checkpoint(m, n)
+    
+def label_text(text: str):
+    is_jp = re.compile(r'[\u0800-\u4e00]+')
+    is_kr = re.compile(r'[\uac00-\ud7af]+')
+    if is_jp.search(text):
+        text = r'[JA]{}[JA]'.format(text)
+    elif is_kr.search(text):
+        text = r'[KO]{}[KO]'.format(text)
+    else:
+        text = r'[ZH]{}[ZH]'.format(text)
+    return text
 
 def Trans(text="お兄ちゃん大好き", model=0, speaker_id=0, out_path='voice.wav'):
-    text = Translate(text)
+    if (model in DUOLINGO_MODELS):
+        text = label_text(text)
     stn_tst = get_text(text, hps_ms[model])
     # print_speakers(hps_ms.speakers)
     with no_grad():
         x_tst = stn_tst.unsqueeze(0)
         x_tst_lengths = LongTensor([stn_tst.size(0)])
         sid = LongTensor([speaker_id])
-        audio = net_g_ms[model].infer(x_tst, x_tst_lengths, sid=sid, noise_scale=.667,
-                                    noise_scale_w=0.8, length_scale=1)[0][0, 0].data.cpu().float().numpy()
+        audio = net_g_ms[model].infer(x_tst, x_tst_lengths, sid=sid, noise_scale=0.1,
+                                    noise_scale_w=0.1, length_scale=1)[0][0, 0].data.cpu().float().numpy()
     write(out_path, hps_ms[model].data.sampling_rate, audio)
     print('voice Successfully saved!')
