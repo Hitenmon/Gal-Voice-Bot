@@ -26,13 +26,13 @@ model =[f.format(model_root) for f in [
             "{0}/ATRI.pth",
             "{0}/Yuzu.pth",
             "{0}/ZeroNoTsukaima.pth",
-            "{0}/CH4.pth"]
+            "{0}/ZH_JP_BILANG.pth"]
         ]
 config =[f.format(config_root) for f in [
             "{0}/ATRI/config.json",
             "{0}/Yuzu/config.json",
             "{0}/ZeroNoTsukaima/config.json",
-            "{0}/CH4/config.json"]
+            "{0}/ZH_JP_BILANG/config.json"]
         ]
 
 DUOLINGO_MODELS = [3]
