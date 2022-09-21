@@ -48,7 +48,7 @@ for m, n in zip(model, net_g_ms):
     utils.load_checkpoint(m, n)
     
 def label_text(text: str):
-    is_jp = re.compile(r'[\u0800-\u4e00]+')
+    is_jp = re.compile(r'[\u3040-\u31ff]+')
     is_kr = re.compile(r'[\uac00-\ud7af]+')
     if is_jp.search(text):
         text = r'[JA]{}[JA]'.format(text)
