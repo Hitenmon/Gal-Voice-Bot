@@ -41,7 +41,7 @@ net_g_ms = [SynthesizerTrn(
     len(h.symbols) if 'symbols' in h.keys() else 0,
     h.data.filter_length // 2 + 1,
     h.train.segment_size // h.data.hop_length,
-    n_speakers=h.data.n_speakers if 'speakers' in h.keys() else '0',
+    n_speakers=h.data.n_speakers if 'speakers' in h.keys() else 0,
     **h.model) for h in hps_ms]
 for m, n in zip(model, net_g_ms):
     utils.load_checkpoint(m, n)
